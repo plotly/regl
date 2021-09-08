@@ -2,7 +2,7 @@
   "name": "regl",
   "version": "2.1.0",
   "description": "regl is a fast functional WebGL framework.",
-  "main": "dist/regl.js",
+  "main": "dist/regl.unchecked.js",
   "types": "dist/regl.d.ts",
   "files": [
     "regl.js",
