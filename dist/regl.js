@@ -4,6 +4,10 @@
     (global.createREGL = factory());
 }(this, (function () { 'use strict';
 
+function sortedObjectKeys(a) {
+  return Object.keys(a).sort()
+}
+
 var isTypedArray = function (x) {
   return (
     x instanceof Uint8Array ||
@@ -19,7 +23,7 @@ var isTypedArray = function (x) {
 }
 
 var extend = function (base, opts) {
-  var keys = Object.keys(opts)
+  var keys = sortedObjectKeys(opts)
   for (var i = 0; i < keys.length; ++i) {
     base[keys[i]] = opts[keys[i]]
   }
@@ -65,7 +69,7 @@ function encolon (message) {
 function checkParameter (param, possibilities, message) {
   if (!(param in possibilities)) {
     raise('unknown parameter (' + param + ')' + encolon(message) +
-          '. possible values: ' + Object.keys(possibilities).join())
+          '. possible values: ' + sortedObjectKeys(possibilities).join())
   }
 }
 
@@ -124,7 +128,7 @@ var constructorKeys = [
 ]
 
 function checkConstructor (obj) {
-  Object.keys(obj).forEach(function (key) {
+  sortedObjectKeys(obj).forEach(function (key) {
     if (constructorKeys.indexOf(key) < 0) {
       raise('invalid regl constructor argument "' + key + '". must be one of ' + constructorKeys)
     }
@@ -225,7 +229,7 @@ function parseSource (source, command) {
     }
     files[fileNumber].lines.push(new ShaderLine(lineNumber++, line))
   }
-  Object.keys(files).forEach(function (fileNumber) {
+  sortedObjectKeys(files).forEach(function (fileNumber) {
     var file = files[fileNumber]
     file.lines.forEach(function (line) {
       file.index[line.number] = line
@@ -278,7 +282,7 @@ function checkShaderError (gl, shader, source, type, command) {
     var errors = parseErrorLog(errLog)
     annotateFiles(files, errors)
 
-    Object.keys(files).forEach(function (fileNumber) {
+    sortedObjectKeys(files).forEach(function (fileNumber) {
       var file = files[fileNumber]
       if (!file.hasErrors) {
         return
@@ -377,7 +381,7 @@ function saveDrawCommandInfo (opts, uniforms, attributes, stringStore) {
   opts._vertId = id(opts.static.vert)
 
   function addProps (dict, set) {
-    Object.keys(set).forEach(function (u) {
+    sortedObjectKeys(set).forEach(function (u) {
       dict[stringStore.id(u)] = true
     })
   }
@@ -414,7 +418,7 @@ function checkParameterCommand (param, possibilities, message, command) {
   if (!(param in possibilities)) {
     commandRaise(
       'unknown parameter (' + param + ')' + encolon(message) +
-      '. possible values: ' + Object.keys(possibilities).join(),
+      '. possible values: ' + sortedObjectKeys(possibilities).join(),
       command || guessCommand())
   }
 }
@@ -1041,7 +1045,7 @@ function createExtensionCache (gl, config) {
   return {
     extensions: extensions,
     restore: function () {
-      Object.keys(extensions).forEach(function (name) {
+      sortedObjectKeys(extensions).forEach(function (name) {
         if (extensions[name] && !tryLoadExtension(name)) {
           throw new Error('(regl): error restoring extension ' + name)
         }
@@ -1277,7 +1281,7 @@ var wrapLimits = function (gl, extensions) {
     subpixelBits: gl.getParameter(GL_SUBPIXEL_BITS),
 
     // supported extensions
-    extensions: Object.keys(extensions).filter(function (ext) {
+    extensions: sortedObjectKeys(extensions).filter(function (ext) {
       return !!extensions[ext]
     }),
 
@@ -1328,7 +1332,7 @@ function isNDArrayLike (obj) {
 }
 
 var values = function (obj) {
-  return Object.keys(obj).map(function (key) { return obj[key] })
+  return sortedObjectKeys(obj).map(function (key) { return obj[key] })
 }
 
 var flattenUtils = {
@@ -1838,7 +1842,7 @@ function wrapBufferState (gl, stats, config, destroyBuffer) {
     stats.getTotalBufferSize = function () {
       var total = 0
       // TODO: Right now, the streams are not part of the total count.
-      Object.keys(bufferSet).forEach(function (key) {
+      sortedObjectKeys(bufferSet).forEach(function (key) {
         total += bufferSet[key].stats.size
       })
       return total
@@ -2337,7 +2341,7 @@ var BITMAP_CLASS = objectName('ImageBitmap')
 var IMAGE_CLASS = objectName('HTMLImageElement')
 var VIDEO_CLASS = objectName('HTMLVideoElement')
 
-var PIXEL_CLASSES = Object.keys(arrayTypes).concat([
+var PIXEL_CLASSES = sortedObjectKeys(arrayTypes).concat([
   CANVAS_CLASS,
   OFFSCREENCANVAS_CLASS,
   CONTEXT2D_CLASS,
@@ -2643,20 +2647,20 @@ function createTextureSet (
   // Copy over all texture formats
   var supportedCompressedFormats = Array.prototype.slice.call(
     gl.getParameter(GL_COMPRESSED_TEXTURE_FORMATS))
-  Object.keys(compressedTextureFormats).forEach(function (name) {
+  sortedObjectKeys(compressedTextureFormats).forEach(function (name) {
     var format = compressedTextureFormats[name]
     if (supportedCompressedFormats.indexOf(format) >= 0) {
       textureFormats[name] = format
     }
   })
 
-  var supportedFormats = Object.keys(textureFormats)
+  var supportedFormats = sortedObjectKeys(textureFormats)
   limits.textureFormats = supportedFormats
 
   // associate with every format string its
   // corresponding GL-value.
   var textureFormatsInvert = []
-  Object.keys(textureFormats).forEach(function (key) {
+  sortedObjectKeys(textureFormats).forEach(function (key) {
     var val = textureFormats[key]
     textureFormatsInvert[val] = key
   })
@@ -2664,25 +2668,25 @@ function createTextureSet (
   // associate with every type string its
   // corresponding GL-value.
   var textureTypesInvert = []
-  Object.keys(textureTypes).forEach(function (key) {
+  sortedObjectKeys(textureTypes).forEach(function (key) {
     var val = textureTypes[key]
     textureTypesInvert[val] = key
   })
 
   var magFiltersInvert = []
-  Object.keys(magFilters).forEach(function (key) {
+  sortedObjectKeys(magFilters).forEach(function (key) {
     var val = magFilters[key]
     magFiltersInvert[val] = key
   })
 
   var minFiltersInvert = []
-  Object.keys(minFilters).forEach(function (key) {
+  sortedObjectKeys(minFilters).forEach(function (key) {
     var val = minFilters[key]
     minFiltersInvert[val] = key
   })
 
   var wrapModesInvert = []
-  Object.keys(wrapModes).forEach(function (key) {
+  sortedObjectKeys(wrapModes).forEach(function (key) {
     var val = wrapModes[key]
     wrapModesInvert[val] = key
   })
@@ -3799,7 +3803,7 @@ function createTextureSet (
   if (config.profile) {
     stats.getTotalTextureSize = function () {
       var total = 0
-      Object.keys(textureSet).forEach(function (key) {
+      sortedObjectKeys(textureSet).forEach(function (key) {
         total += textureSet[key].stats.size
       })
       return total
@@ -3936,7 +3940,7 @@ var wrapRenderbuffers = function (gl, extensions, limits, stats, config) {
   }
 
   var formatTypesInvert = []
-  Object.keys(formatTypes).forEach(function (key) {
+  sortedObjectKeys(formatTypes).forEach(function (key) {
     var val = formatTypes[key]
     formatTypesInvert[val] = key
   })
@@ -4105,7 +4109,7 @@ var wrapRenderbuffers = function (gl, extensions, limits, stats, config) {
   if (config.profile) {
     stats.getTotalRenderbufferSize = function () {
       var total = 0
-      Object.keys(renderbufferSet).forEach(function (key) {
+      sortedObjectKeys(renderbufferSet).forEach(function (key) {
         total += renderbufferSet[key].stats.size
       })
       return total
@@ -5336,8 +5340,8 @@ function wrapAttributeState (
           vao.primitive = primTypes[options.primitive]
         }
 
-        check$1.optional(() => {
-          var keys = Object.keys(options)
+        check$1.optional(function () {
+          var keys = sortedObjectKeys(options)
           for (var i = 0; i < keys.length; ++i) {
             check$1(VAO_OPTIONS.indexOf(keys[i]) >= 0, 'invalid option for vao: "' + keys[i] + '" valid options are ' + VAO_OPTIONS)
           }
@@ -5575,16 +5579,13 @@ function wrapShaderState (gl, stringStore, stats, config) {
               gl.getUniformLocation(program, name),
               info))
           }
+        } else {
+          insertActiveInfo(uniforms, new ActiveInfo(
+            info.name,
+            stringStore.id(info.name),
+            gl.getUniformLocation(program, info.name),
+            info))
         }
-        var uniName = info.name
-        if (info.size > 1) {
-          uniName = uniName.replace('[0]', '')
-        }
-        insertActiveInfo(uniforms, new ActiveInfo(
-          uniName,
-          stringStore.id(uniName),
-          gl.getUniformLocation(program, uniName),
-          info))
       }
     }
 
@@ -5696,7 +5697,7 @@ function wrapShaderState (gl, stringStore, stats, config) {
             delete programCache[program.fragId][program.vertId]
           }
           // no program is linked to this frag anymore
-          if (!Object.keys(programCache[program.fragId]).length) {
+          if (!sortedObjectKeys(programCache[program.fragId]).length) {
             gl.deleteShader(fragShaders[program.fragId])
             delete fragShaders[program.fragId]
             delete programCache[program.fragId]
@@ -5849,6 +5850,10 @@ function wrapReadPixels (
   return readPixels
 }
 
+var allFns = {};
+
+var newFns = {}
+
 function slice (x) {
   return Array.prototype.slice.call(x)
 }
@@ -5858,24 +5863,26 @@ function join (x) {
 }
 
 function createEnvironment () {
-  // Unique variable id counter
-  var varCounter = 0
+  // variable id counters
+  var $Counter = 0
+  var vCounter = 0
 
   // Linked values are passed from this scope into the generated code block
   // Calling link() passes a value into the generated scope and returns
   // the variable name which it is bound to
-  var linkedNames = []
-  var linkedValues = []
+  var linkedItems = {}
   function link (value) {
-    for (var i = 0; i < linkedValues.length; ++i) {
-      if (linkedValues[i] === value) {
-        return linkedNames[i]
-      }
+    var name = '$' + $Counter
+    var originalName = false
+    if(typeof value === 'object' && value.name) {
+      name = value.name.replace(/ /g, '_')
+      originalName = true
     }
 
-    var name = 'g' + (varCounter++)
-    linkedNames.push(name)
-    linkedValues.push(value)
+    if (name in linkedItems) return name
+
+    linkedItems[name] = value
+    if(!originalName) $Counter++
     return name
   }
 
@@ -5888,7 +5895,9 @@ function createEnvironment () {
 
     var vars = []
     function def () {
-      var name = 'v' + (varCounter++)
+      var name = 'v' + vCounter
+      vCounter++
+
       vars.push(name)
 
       if (arguments.length > 0) {
@@ -6004,10 +6013,11 @@ function createEnvironment () {
   }
 
   function compile () {
-    var code = ['"use strict";',
+    var code = [
       globalBlock,
-      'return {']
-    Object.keys(procedures).forEach(function (name) {
+      'return {'
+    ]
+    sortedObjectKeys(procedures).forEach(function (name) {
       code.push('"', name, '":', procedures[name].toString(), ',')
     })
     code.push('}')
@@ -6015,7 +6025,54 @@ function createEnvironment () {
       .replace(/;/g, ';\n')
       .replace(/}/g, '}\n')
       .replace(/{/g, '{\n')
-    var proc = Function.apply(null, linkedNames.concat(src))
+
+    var linkedNames = []
+    var linkedValues = []
+    Object.keys(linkedItems).sort(function(a, b) {
+      var a$ = a.charAt(0) === '$'
+      var b$ = b.charAt(0) === '$'
+      if(!a$ && !b$) return a.localeCompare(b)
+      if(a$ && b$) return +a.slice(1) < +b.slice(1) ? -1 : 1
+      if(a$ && !b$) return -1
+      return 1
+    }).forEach(function (name) {
+      var value = linkedItems[name]
+      linkedNames.push(name)
+      linkedValues.push(value)
+    })
+
+    var lastNumber = 0
+    for(var q = linkedNames.length - 1; q > -1; q--) {
+      if(linkedNames[q].charAt(0) === '$') {
+        lastNumber = q
+        break
+      }
+    }
+
+    var key = linkedNames.slice(lastNumber).join()  + '|' +
+      globalBlock.toString().slice(-256).replace(/\n/g,'').replace(/\"/g,'')
+
+    var proc = allFns[key]
+    if(!proc) {
+      // throw new Error('missing precompiled function with key: ' + key)
+      proc = Function.apply(null, linkedNames.concat(src))
+      newFns[key] = proc.toString()
+
+      // create functions for compiled-fns
+      var str = 'module.exports = ' + JSON.stringify(newFns, null, 2)
+        .replace(/\\n/g,'\n')
+        .replace(/\"/g,"'")
+        .replace(/\\/g,'')
+        .replace(/'function anonymous/g, 'function ')
+        .replace(/}'/g, '}')
+
+      // copy functions after viewing
+      // 1. gl2d_parcoords
+      // 2. gl2d_order_error
+
+      console.log(str)
+      console.log(Object.keys(newFns).length)
+    }
     return proc.apply(null, linkedValues)
   }
 
@@ -6529,7 +6586,7 @@ function reglCore (
     var shared = env.shared = {
       props: 'a0'
     }
-    Object.keys(sharedState).forEach(function (prop) {
+    sortedObjectKeys(sharedState).forEach(function (prop) {
       shared[prop] = global.def(SHARED, '.', prop)
     })
 
@@ -6550,7 +6607,7 @@ function reglCore (
     // Copy GL state variables over
     var nextVars = env.next = {}
     var currentVars = env.current = {}
-    Object.keys(GL_VARIABLES).forEach(function (variable) {
+    sortedObjectKeys(GL_VARIABLES).forEach(function (variable) {
       if (Array.isArray(currentState[variable])) {
         nextVars[variable] = global.def(shared.next, '.', variable)
         currentVars[variable] = global.def(shared.current, '.', variable)
@@ -6559,7 +6616,7 @@ function reglCore (
 
     // Initialize shared constants
     var constants = env.constants = {}
-    Object.keys(sharedConstants).forEach(function (name) {
+    sortedObjectKeys(sharedConstants).forEach(function (name) {
       constants[name] = global.def(JSON.stringify(sharedConstants[name]))
     })
 
@@ -6854,11 +6911,11 @@ function reglCore (
       typeof staticOptions[S_FRAG] === 'string' &&
       typeof staticOptions[S_VERT] === 'string'
     if (staticProgram) {
-      if (Object.keys(attributes.dynamic).length > 0) {
+      if (sortedObjectKeys(attributes.dynamic).length > 0) {
         return null
       }
       var staticAttributes = attributes.static
-      var sAttributes = Object.keys(staticAttributes)
+      var sAttributes = sortedObjectKeys(staticAttributes)
       if (sAttributes.length > 0 && typeof staticAttributes[sAttributes[0]] === 'number') {
         var bindings = []
         for (var i = 0; i < sAttributes.length; ++i) {
@@ -7080,7 +7137,7 @@ function reglCore (
           check$1.optional(function () {
             env.assert(scope,
               prim + ' in ' + PRIM_TYPES,
-              'invalid primitive, must be one of ' + Object.keys(primTypes))
+              'invalid primitive, must be one of ' + sortedObjectKeys(primTypes))
           })
           return scope.def(PRIM_TYPES, '[', prim, ']')
         })
@@ -7341,7 +7398,7 @@ function reglCore (
               check$1.optional(function () {
                 env.assert(scope,
                   value + ' in ' + COMPARE_FUNCS,
-                  'invalid ' + prop + ', must be one of ' + Object.keys(compareFuncs))
+                  'invalid ' + prop + ', must be one of ' + sortedObjectKeys(compareFuncs))
               })
               return scope.def(COMPARE_FUNCS, '[', value, ']')
             })
@@ -7417,7 +7474,7 @@ function reglCore (
                 check$1.optional(function () {
                   env.assert(scope,
                     func + ' in ' + BLEND_FUNCS,
-                    'invalid ' + prop + '.' + prefix + suffix + ', must be one of ' + Object.keys(blendFuncs))
+                    'invalid ' + prop + '.' + prefix + suffix + ', must be one of ' + sortedObjectKeys(blendFuncs))
                 })
 
                 return func
@@ -7478,7 +7535,7 @@ function reglCore (
                 function checkProp (block, name, value) {
                   env.assert(block,
                     value + ' in ' + BLEND_EQUATIONS,
-                    'invalid ' + name + ', must be one of ' + Object.keys(blendEquations))
+                    'invalid ' + name + ', must be one of ' + sortedObjectKeys(blendEquations))
                 }
                 checkProp(ifte.then, prop, value)
 
@@ -7609,7 +7666,7 @@ function reglCore (
                   env.assert(scope,
                     '!("' + name + '" in ' + value + ')||' +
                     '(' + value + '.' + name + ' in ' + STENCIL_OPS + ')',
-                    'invalid ' + prop + '.' + name + ', must be one of ' + Object.keys(stencilOps))
+                    'invalid ' + prop + '.' + name + ', must be one of ' + sortedObjectKeys(stencilOps))
                 })
 
                 return scope.def(
@@ -7765,7 +7822,7 @@ function reglCore (
 
     var UNIFORMS = {}
 
-    Object.keys(staticUniforms).forEach(function (name) {
+    sortedObjectKeys(staticUniforms).forEach(function (name) {
       var value = staticUniforms[name]
       var result
       if (typeof value === 'number' ||
@@ -7809,7 +7866,7 @@ function reglCore (
       UNIFORMS[name] = result
     })
 
-    Object.keys(dynamicUniforms).forEach(function (key) {
+    sortedObjectKeys(dynamicUniforms).forEach(function (key) {
       var dyn = dynamicUniforms[key]
       UNIFORMS[key] = createDynamicDecl(dyn, function (env, scope) {
         return env.invoke(scope, dyn)
@@ -7825,7 +7882,7 @@ function reglCore (
 
     var attributeDefs = {}
 
-    Object.keys(staticAttributes).forEach(function (attribute) {
+    sortedObjectKeys(staticAttributes).forEach(function (attribute) {
       var value = staticAttributes[attribute]
       var id = stringStore.id(attribute)
 
@@ -7914,7 +7971,7 @@ function reglCore (
                 'stride'
               ]
 
-              Object.keys(value).forEach(function (prop) {
+              sortedObjectKeys(value).forEach(function (prop) {
                 check$1.command(
                   VALID_KEYS.indexOf(prop) >= 0,
                   'unknown parameter "' + prop + '" for attribute pointer "' + attribute + '" (valid parameters are ' + VALID_KEYS + ')',
@@ -7942,7 +7999,7 @@ function reglCore (
         var result = {
           isStream: false
         }
-        Object.keys(record).forEach(function (key) {
+        sortedObjectKeys(record).forEach(function (key) {
           result[key] = record[key]
         })
         if (record.buffer) {
@@ -7954,7 +8011,7 @@ function reglCore (
       })
     })
 
-    Object.keys(dynamicAttributes).forEach(function (attribute) {
+    sortedObjectKeys(dynamicAttributes).forEach(function (attribute) {
       var dyn = dynamicAttributes[attribute]
 
       function appendAttributeCode (env, block) {
@@ -7987,7 +8044,7 @@ function reglCore (
         }
         var defaultRecord = new AttributeRecord()
         defaultRecord.state = ATTRIB_STATE_POINTER
-        Object.keys(defaultRecord).forEach(function (key) {
+        sortedObjectKeys(defaultRecord).forEach(function (key) {
           result[key] = block.def('' + defaultRecord[key])
         })
 
@@ -8054,7 +8111,7 @@ function reglCore (
     var dynamicContext = context.dynamic
     var result = {}
 
-    Object.keys(staticContext).forEach(function (name) {
+    sortedObjectKeys(staticContext).forEach(function (name) {
       var value = staticContext[name]
       result[name] = createStaticDecl(function (env, scope) {
         if (typeof value === 'number' || typeof value === 'boolean') {
@@ -8065,7 +8122,7 @@ function reglCore (
       })
     })
 
-    Object.keys(dynamicContext).forEach(function (name) {
+    sortedObjectKeys(dynamicContext).forEach(function (name) {
       var dyn = dynamicContext[name]
       result[name] = createDynamicDecl(dyn, function (env, scope) {
         return env.invoke(scope, dyn)
@@ -8094,7 +8151,7 @@ function reglCore (
       ].concat(GL_STATE_NAMES)
 
       function checkKeys (dict) {
-        Object.keys(dict).forEach(function (key) {
+        sortedObjectKeys(dict).forEach(function (key) {
           check$1.command(
             KEY_NAMES.indexOf(key) >= 0,
             'unknown parameter "' + key + '"',
@@ -8123,7 +8180,7 @@ function reglCore (
     copyBox(S_VIEWPORT)
     copyBox(propName(S_SCISSOR_BOX))
 
-    var dirty = Object.keys(state).length > 0
+    var dirty = sortedObjectKeys(state).length > 0
 
     var result = {
       framebuffer: framebuffer,
@@ -8183,7 +8240,7 @@ function reglCore (
 
     var contextEnter = env.scope()
 
-    Object.keys(context).forEach(function (name) {
+    sortedObjectKeys(context).forEach(function (name) {
       scope.save(CONTEXT, '.' + name)
       var defn = context[name]
       var value = defn.append(env, scope)
@@ -8297,7 +8354,7 @@ function reglCore (
         }
       }
     })
-    if (Object.keys(args.state).length === 0) {
+    if (sortedObjectKeys(args.state).length === 0) {
       block(CURRENT_STATE, '.dirty=false;')
     }
     scope(block)
@@ -8308,7 +8365,7 @@ function reglCore (
     var CURRENT_VARS = env.current
     var CURRENT_STATE = shared.current
     var GL = shared.gl
-    sortState(Object.keys(options)).forEach(function (param) {
+    sortState(sortedObjectKeys(options)).forEach(function (param) {
       var defn = options[param]
       if (filter && !filter(defn)) {
         return
@@ -8567,7 +8624,7 @@ function reglCore (
             'missing attribute ' + name)
         })
         record = {}
-        Object.keys(new AttributeRecord()).forEach(function (key) {
+        sortedObjectKeys(new AttributeRecord()).forEach(function (key) {
           record[key] = scope.def(scopeAttrib, '.', key)
         })
       }
@@ -8580,25 +8637,12 @@ function reglCore (
     var shared = env.shared
     var GL = shared.gl
 
-    var definedArrUniforms = {}
     var infix
     for (var i = 0; i < uniforms.length; ++i) {
       var uniform = uniforms[i]
       var name = uniform.name
       var type = uniform.info.type
-      var size = uniform.info.size
       var arg = args.uniforms[name]
-      if (size > 1) {
-        // either foo[n] or foos, avoid define both
-        if (!arg) {
-          continue
-        }
-        var arrUniformName = name.replace('[0]', '')
-        if (definedArrUniforms[arrUniformName]) {
-          continue
-        }
-        definedArrUniforms[arrUniformName] = 1
-      }
       var UNIFORM = env.link(uniform)
       var LOCATION = UNIFORM + '.location'
 
@@ -8652,99 +8696,74 @@ function reglCore (
           } else {
             switch (type) {
               case GL_FLOAT$8:
-                if (size === 1) {
-                  check$1.commandType(value, 'number', 'uniform ' + name, env.commandStr)
-                } else {
-                  check$1.command(
-                    isArrayLike(value) && (value.length === size),
-                    'uniform ' + name, env.commandStr)
-                }
+                check$1.commandType(value, 'number', 'uniform ' + name, env.commandStr)
                 infix = '1f'
                 break
               case GL_FLOAT_VEC2:
                 check$1.command(
-                  isArrayLike(value) && (value.length && value.length % 2 === 0 && value.length <= size * 2),
+                  isArrayLike(value) && value.length === 2,
                   'uniform ' + name, env.commandStr)
                 infix = '2f'
                 break
               case GL_FLOAT_VEC3:
                 check$1.command(
-                  isArrayLike(value) && (value.length && value.length % 3 === 0 && value.length <= size * 3),
+                  isArrayLike(value) && value.length === 3,
                   'uniform ' + name, env.commandStr)
                 infix = '3f'
                 break
               case GL_FLOAT_VEC4:
                 check$1.command(
-                  isArrayLike(value) && (value.length && value.length % 4 === 0 && value.length <= size * 4),
+                  isArrayLike(value) && value.length === 4,
                   'uniform ' + name, env.commandStr)
                 infix = '4f'
                 break
               case GL_BOOL:
-                if (size === 1) {
-                  check$1.commandType(value, 'boolean', 'uniform ' + name, env.commandStr)
-                } else {
-                  check$1.command(
-                    isArrayLike(value) && (value.length === size),
-                    'uniform ' + name, env.commandStr)
-                }
+                check$1.commandType(value, 'boolean', 'uniform ' + name, env.commandStr)
                 infix = '1i'
                 break
               case GL_INT$3:
-                if (size === 1) {
-                  check$1.commandType(value, 'number', 'uniform ' + name, env.commandStr)
-                } else {
-                  check$1.command(
-                    isArrayLike(value) && (value.length === size),
-                    'uniform ' + name, env.commandStr)
-                }
+                check$1.commandType(value, 'number', 'uniform ' + name, env.commandStr)
                 infix = '1i'
                 break
               case GL_BOOL_VEC2:
                 check$1.command(
-                  isArrayLike(value) && (value.length && value.length % 2 === 0 && value.length <= size * 2),
+                  isArrayLike(value) && value.length === 2,
                   'uniform ' + name, env.commandStr)
                 infix = '2i'
                 break
               case GL_INT_VEC2:
                 check$1.command(
-                  isArrayLike(value) && (value.length && value.length % 2 === 0 && value.length <= size * 2),
+                  isArrayLike(value) && value.length === 2,
                   'uniform ' + name, env.commandStr)
                 infix = '2i'
                 break
               case GL_BOOL_VEC3:
                 check$1.command(
-                  isArrayLike(value) && (value.length && value.length % 3 === 0 && value.length <= size * 3),
+                  isArrayLike(value) && value.length === 3,
                   'uniform ' + name, env.commandStr)
                 infix = '3i'
                 break
               case GL_INT_VEC3:
                 check$1.command(
-                  isArrayLike(value) && (value.length && value.length % 3 === 0 && value.length <= size * 3),
+                  isArrayLike(value) && value.length === 3,
                   'uniform ' + name, env.commandStr)
                 infix = '3i'
                 break
               case GL_BOOL_VEC4:
                 check$1.command(
-                  isArrayLike(value) && (value.length && value.length % 4 === 0 && value.length <= size * 4),
+                  isArrayLike(value) && value.length === 4,
                   'uniform ' + name, env.commandStr)
                 infix = '4i'
                 break
               case GL_INT_VEC4:
                 check$1.command(
-                  isArrayLike(value) && (value.length && value.length % 4 === 0 && value.length <= size * 4),
+                  isArrayLike(value) && value.length === 4,
                   'uniform ' + name, env.commandStr)
                 infix = '4i'
                 break
             }
-            if (size > 1) {
-              infix += 'v'
-              value = env.global.def('[' +
-              Array.prototype.slice.call(value) + ']')
-            } else {
-              value = isArrayLike(value) ? Array.prototype.slice.call(value) : value
-            }
             scope(GL, '.uniform', infix, '(', LOCATION, ',',
-              value,
+              isArrayLike(value) ? Array.prototype.slice.call(value) : value,
               ');')
           }
           continue
@@ -8779,24 +8798,20 @@ function reglCore (
             'bad data or missing for uniform "' + name + '".  ' + message)
         }
 
-        function checkType (type, size) {
-          if (size === 1) {
-            check$1(!Array.isArray(VALUE), 'must not specify an array type for uniform')
-          }
+        function checkType (type) {
+          check$1(!Array.isArray(VALUE), 'must not specify an array type for uniform')
           emitCheck(
-            'Array.isArray(' + VALUE + ') && typeof ' + VALUE + '[0]===" ' + type + '"' +
-            ' || typeof ' + VALUE + '==="' + type + '"',
+            'typeof ' + VALUE + '==="' + type + '"',
             'invalid type, expected ' + type)
         }
 
-        function checkVector (n, type, size) {
+        function checkVector (n, type) {
           if (Array.isArray(VALUE)) {
-            check$1(VALUE.length && VALUE.length % n === 0 && VALUE.length <= n * size, 'must have length of ' + (size === 1 ? '' : 'n * ') + n)
+            check$1(VALUE.length === n, 'must have length ' + n)
           } else {
             emitCheck(
-              shared.isArrayLike + '(' + VALUE + ')&&' + VALUE + '.length && ' + VALUE + '.length % ' + n + ' === 0' +
-              ' && ' + VALUE + '.length<=' + n * size,
-              'invalid vector, should have length of ' + (size === 1 ? '' : 'n * ') + n, env.commandStr)
+              shared.isArrayLike + '(' + VALUE + ')&&' + VALUE + '.length===' + n,
+              'invalid vector, should have length ' + n, env.commandStr)
           }
         }
 
@@ -8811,49 +8826,49 @@ function reglCore (
 
         switch (type) {
           case GL_INT$3:
-            checkType('number', size)
+            checkType('number')
             break
           case GL_INT_VEC2:
-            checkVector(2, 'number', size)
+            checkVector(2, 'number')
             break
           case GL_INT_VEC3:
-            checkVector(3, 'number', size)
+            checkVector(3, 'number')
             break
           case GL_INT_VEC4:
-            checkVector(4, 'number', size)
+            checkVector(4, 'number')
             break
           case GL_FLOAT$8:
-            checkType('number', size)
+            checkType('number')
             break
           case GL_FLOAT_VEC2:
-            checkVector(2, 'number', size)
+            checkVector(2, 'number')
             break
           case GL_FLOAT_VEC3:
-            checkVector(3, 'number', size)
+            checkVector(3, 'number')
             break
           case GL_FLOAT_VEC4:
-            checkVector(4, 'number', size)
+            checkVector(4, 'number')
             break
           case GL_BOOL:
-            checkType('boolean', size)
+            checkType('boolean')
             break
           case GL_BOOL_VEC2:
-            checkVector(2, 'boolean', size)
+            checkVector(2, 'boolean')
             break
           case GL_BOOL_VEC3:
-            checkVector(3, 'boolean', size)
+            checkVector(3, 'boolean')
             break
           case GL_BOOL_VEC4:
-            checkVector(4, 'boolean', size)
+            checkVector(4, 'boolean')
             break
           case GL_FLOAT_MAT2:
-            checkVector(4, 'number', size)
+            checkVector(4, 'number')
             break
           case GL_FLOAT_MAT3:
-            checkVector(9, 'number', size)
+            checkVector(9, 'number')
             break
           case GL_FLOAT_MAT4:
-            checkVector(16, 'number', size)
+            checkVector(16, 'number')
             break
           case GL_SAMPLER_2D:
             checkTexture(GL_TEXTURE_2D$3)
@@ -8926,11 +8941,6 @@ function reglCore (
         case GL_FLOAT_MAT4:
           infix = 'Matrix4fv'
           break
-      }
-
-      if (infix.indexOf('Matrix') === -1 && size > 1) {
-        infix += 'v'
-        unroll = 1
       }
 
       if (infix.charAt(0) === 'M') {
@@ -9237,7 +9247,7 @@ function reglCore (
             CACHED_PROC, '.call(this,a0);'))
     }
 
-    if (Object.keys(args.state).length > 0) {
+    if (sortedObjectKeys(args.state).length > 0) {
       draw(env.shared.current, '.dirty=true;')
     }
     if (env.shared.vao) {
@@ -9356,7 +9366,7 @@ function reglCore (
     // Check if any context variables depend on props
     var contextDynamic = false
     var needsContext = true
-    Object.keys(args.context).forEach(function (name) {
+    sortedObjectKeys(args.context).forEach(function (name) {
       contextDynamic = contextDynamic || args.context[name].propDep
     })
     if (!contextDynamic) {
@@ -9438,7 +9448,7 @@ function reglCore (
       }
     }
 
-    if (Object.keys(args.state).length > 0) {
+    if (sortedObjectKeys(args.state).length > 0) {
       batch(env.shared.current, '.dirty=true;')
     }
 
@@ -9465,7 +9475,7 @@ function reglCore (
       args.framebuffer.append(env, scope)
     }
 
-    sortState(Object.keys(args.state)).forEach(function (name) {
+    sortState(sortedObjectKeys(args.state)).forEach(function (name) {
       var defn = args.state[name]
       var value = defn.append(env, scope)
       if (isArrayLike(value)) {
@@ -9488,7 +9498,7 @@ function reglCore (
         scope.set(shared.draw, '.' + opt, '' + variable.append(env, scope))
       })
 
-    Object.keys(args.uniforms).forEach(function (opt) {
+    sortedObjectKeys(args.uniforms).forEach(function (opt) {
       var value = args.uniforms[opt].append(env, scope)
       if (Array.isArray(value)) {
         value = '[' + value.join() + ']'
@@ -9499,10 +9509,10 @@ function reglCore (
         value)
     })
 
-    Object.keys(args.attributes).forEach(function (name) {
+    sortedObjectKeys(args.attributes).forEach(function (name) {
       var record = args.attributes[name].append(env, scope)
       var scopeAttrib = env.scopeAttrib(name)
-      Object.keys(new AttributeRecord()).forEach(function (prop) {
+      sortedObjectKeys(new AttributeRecord()).forEach(function (prop) {
         scope.set(scopeAttrib, '.' + prop, record[prop])
       })
     })
@@ -9520,7 +9530,7 @@ function reglCore (
     saveShader(S_VERT)
     saveShader(S_FRAG)
 
-    if (Object.keys(args.state).length > 0) {
+    if (sortedObjectKeys(args.state).length > 0) {
       scope(CURRENT_STATE, '.dirty=true;')
       scope.exit(CURRENT_STATE, '.dirty=true;')
     }
@@ -9532,7 +9542,7 @@ function reglCore (
     if (typeof object !== 'object' || isArrayLike(object)) {
       return
     }
-    var props = Object.keys(object)
+    var props = sortedObjectKeys(object)
     for (var i = 0; i < props.length; ++i) {
       if (dynamic.isDynamic(object[props[i]])) {
         return true
@@ -9548,7 +9558,7 @@ function reglCore (
     }
 
     var globals = env.global
-    var keys = Object.keys(object)
+    var keys = sortedObjectKeys(object)
     var thisDep = false
     var contextDep = false
     var propDep = false
@@ -9618,7 +9628,7 @@ function reglCore (
     env.stats = env.link(stats)
 
     // splat options and attributes to allow for dynamic nested properties
-    Object.keys(attributes.static).forEach(function (key) {
+    sortedObjectKeys(attributes.static).forEach(function (key) {
       splatObject(env, attributes, key)
     })
     NESTED_OPTIONS.forEach(function (name) {
@@ -9710,7 +9720,7 @@ function reglCore (
         env.shared.vao, '.currentVAO=null;',
         env.shared.vao, '.setVAO(', env.shared.vao, '.targetVAO);')
 
-      Object.keys(GL_FLAGS).forEach(function (flag) {
+      sortedObjectKeys(GL_FLAGS).forEach(function (flag) {
         var cap = GL_FLAGS[flag]
         var NEXT = common.def(NEXT_STATE, '.', flag)
         var block = env.block()
@@ -9725,7 +9735,7 @@ function reglCore (
           '}')
       })
 
-      Object.keys(GL_VARIABLES).forEach(function (name) {
+      sortedObjectKeys(GL_VARIABLES).forEach(function (name) {
         var func = GL_VARIABLES[name]
         var init = currentState[name]
         var NEXT, CURRENT
