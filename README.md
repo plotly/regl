@@ -41,6 +41,13 @@
   </h3>
 </div>
 
+<div align="center">
+  <a href="https://dash.plotly.com/project-maintenance">
+    <img src="https://dash.plotly.com/assets/images/maintained-by-plotly.png" width="400px" alt="Maintained by Plotly">
+  </a>
+</div>
+
+
 ## Example
 
 `regl` simplifies WebGL programming by removing as much shared state as it can get away with.  To do this, it replaces the WebGL API with two fundamental abstractions, **resources** and **commands**:
